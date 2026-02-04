@@ -20,6 +20,7 @@ perfect commit message.
 - 🎯 Works from terminal or within Neovim (using vim-fugitive)
 - 🤝 Non-intrusive - if you start typing, AI suggestions are added as comments instead
 - 🔑 Reuses your Pi login or provider API key environment variables for authentication
+- 🔐 Copilot: automatically uses existing authentication from copilot.lua or copilot.vim (no token needed)
 - ⚙️ Configurable model, temperature, and max tokens
 - 🔄 Optional push prompt after successful commits
 - ⬇️⬆️ Pull before push to reduce rejections (configurable with args)
@@ -100,6 +101,8 @@ export OPENAI_API_KEY="your-api-key-here"
 
 **For GitHub Copilot:**
 
+If you're already using [copilot.lua](https://github.com/zbirenbaum/copilot.lua) or [copilot.vim](https://github.com/github/copilot.vim), authentication is automatic, no setup needed. Otherwise:
+
 ```bash
 export COPILOT_TOKEN="your-github-copilot-token-here"
 ```
@@ -134,8 +137,8 @@ require("ai_commit_msg").setup({
     args = { "--rebase", "--autostash" }, -- arguments passed to `git pull`
   },
   
-  -- Show spinner while generating
-  spinner = true,
+  -- Show spinner while generating (true for default, false to disable, or custom frames array)
+  spinner = true, -- Can also be false or { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
   
   -- Show notifications
   notifications = true,
