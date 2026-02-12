@@ -134,63 +134,73 @@ function M.generate(config, callback)
 
     local start_time = vim.uv.hrtime()
 
-    call_api(config, diff, function(success, result, usage)
-      -- Stop spinner
-      if spinner_timer and not spinner_timer:is_closing() then
-        spinner_timer:stop()
-        spinner_timer:close()
+    -- Fetch recent commit history for style reference
+    vim.system({ "git", "log", "--oneline", "-20" }, {}, function(log_res)
+      local git_log = (log_res.code == 0 and log_res.stdout and log_res.stdout ~= "") and log_res.stdout or nil
+
+      local content = diff
+      if git_log then
+        content = "Recent commit messages (for style reference):\n" .. git_log .. "\nGit diff:\n" .. diff
       end
-      spinner_timer = nil
 
-      vim.schedule(function()
-        if not success then
-          vim.notify("ai-commit-msg.nvim: " .. result, vim.log.levels.ERROR)
-          -- Replace spinner notification with error message
-          if config.notifications then
-            local opts = {
-              title = "AI Commit",
-              timeout = 3000,
-            }
-            if notify_record then
-              opts.replace = notify_record.id
-            end
-            vim.notify("❌ " .. result, vim.log.levels.ERROR, opts)
-          end
-          if callback then
-            callback(false, result)
-          end
-        else
-          local duration = (vim.uv.hrtime() - start_time) / 1e9
-          local duration_str = string.format("%.2fs", duration)
-
-          -- Calculate and format cost if available
-          local ai_commit_msg = require("ai_commit_msg")
-          local cost_info = ai_commit_msg.calculate_cost(usage, config)
-          local duration_cost_str = duration_str
-          if cost_info and config.cost_display then
-            if config.cost_display == "compact" then
-              duration_cost_str = duration_str .. " " .. ai_commit_msg.format_cost(cost_info, config.cost_display)
-            else
-              duration_cost_str = duration_str .. ") " .. ai_commit_msg.format_cost(cost_info, config.cost_display)
-            end
-          end
-
-          vim.notify("ai-commit-msg.nvim: Generated message: " .. result:sub(1, 50) .. "...", vim.log.levels.DEBUG)
-          -- Replace spinner notification with success message
-          if config.notifications then
-            local opts = {
-              title = "AI Commit",
-              timeout = 2000,
-            }
-            if notify_record then
-              opts.replace = notify_record.id
-            end
-            vim.notify("✅ Commit message generated (" .. duration_cost_str .. ")", vim.log.levels.INFO, opts)
-          end
-          if callback then
-            callback(true, result)
-          end
+      call_api(config, content, function(success, result, usage)
+        -- Stop spinner
+        if spinner_timer and not spinner_timer:is_closing() then
+          spinner_timer:stop()
+          spinner_timer:close()
         end
+        spinner_timer = nil
+
+        vim.schedule(function()
+          if not success then
+            vim.notify("ai-commit-msg.nvim: " .. result, vim.log.levels.ERROR)
+            -- Replace spinner notification with error message
+            if config.notifications then
+              local opts = {
+                title = "AI Commit",
+                timeout = 3000,
+              }
+              if notify_record then
+                opts.replace = notify_record.id
+              end
+              vim.notify("❌ " .. result, vim.log.levels.ERROR, opts)
+            end
+            if callback then
+              callback(false, result)
+            end
+          else
+            local duration = (vim.uv.hrtime() - start_time) / 1e9
+            local duration_str = string.format("%.2fs", duration)
+
+            -- Calculate and format cost if available
+            local ai_commit_msg = require("ai_commit_msg")
+            local cost_info = ai_commit_msg.calculate_cost(usage, config)
+            local duration_cost_str = duration_str
+            if cost_info and config.cost_display then
+              if config.cost_display == "compact" then
+                duration_cost_str = duration_str .. " " .. ai_commit_msg.format_cost(cost_info, config.cost_display)
+              else
+                duration_cost_str = duration_str .. ") " .. ai_commit_msg.format_cost(cost_info, config.cost_display)
+              end
+            end
+
+            vim.notify("ai-commit-msg.nvim: Generated message: " .. result:sub(1, 50) .. "...", vim.log.levels.DEBUG)
+            -- Replace spinner notification with success message
+            if config.notifications then
+              local opts = {
+                title = "AI Commit",
+                timeout = 2000,
+              }
+              if notify_record then
+                opts.replace = notify_record.id
+              end
+              vim.notify("✅ Commit message generated (" .. duration_cost_str .. ")", vim.log.levels.INFO, opts)
+            end
+            if callback then
+              callback(true, result)
+            end
+          end
+        end)
       end)
     end)
   end)

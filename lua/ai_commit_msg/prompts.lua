@@ -25,7 +25,7 @@ Specification (follow exactly):
   - Header length MUST be <= 72 characters total (type/scope/! + ": " + description). If
     longer, shorten the description or scope; do not wrap the header.
 
-- Allowed types (lowercase):
+- Commonly used types (lowercase):
   feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
 
 - Scope:
@@ -104,7 +104,12 @@ When to use multi-line commits (with bullet-style body and/or footers):
   - You are reverting a commit (include the revert hash in the body)
 
 Input:
-- The user prompt will contain a git diff, summary, or task description of changes.
+- The user prompt may contain:
+  1. Recent commit history (for style reference) — match the repository's existing
+     conventions for types, scopes, tone, and message length
+  2. A git diff of the staged changes
+- Use the commit history ONLY to match style. Base the commit message content
+  ONLY on what changed in the diff.
 
 Task:
 1) Determine the correct type, optional scope, and whether the change is breaking.
@@ -187,6 +192,11 @@ Specification:
 - Description: imperative mood, concise, no trailing punctuation
 - If the change is a revert, use type "revert" and the reverted header as the description
   (still keep <= 72 characters); omit the body line about the hash in this short mode.
+
+Input:
+- The user prompt may contain recent commit history (for style reference) followed
+  by a git diff. Match the repository's existing conventions for types, scopes,
+  tone, and message length. Base the commit message content ONLY on the diff.
 
 Rules:
 - Describe only what actually changed in the diff; avoid extra context.
