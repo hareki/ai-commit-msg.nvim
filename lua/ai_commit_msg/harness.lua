@@ -51,6 +51,17 @@ local function list_diff_files(dir)
   return files
 end
 
+local function get_recent_commits(n)
+  n = n or 20
+  local handle = io.popen("git log --oneline -" .. n .. " 2>/dev/null")
+  if not handle then
+    return ""
+  end
+  local output = handle:read("*a")
+  handle:close()
+  return vim.trim(output or "")
+end
+
 local function get_models_for_provider(pcfg)
   local models = {}
   if pcfg.pricing then
@@ -105,6 +116,8 @@ function M.run_matrix(opts)
     return
   end
 
+  local commits = get_recent_commits()
+
   local results = {}
   local pending = 0
 
@@ -135,7 +148,10 @@ function M.run_matrix(opts)
             local cfg = vim.tbl_deep_extend("force", {}, pcfg)
             cfg.provider = pname
             cfg.model = model
-            cfg.system_prompt = (auto_short and tiny) and prompts.SHORT_SYSTEM_PROMPT or prompts.DEFAULT_SYSTEM_PROMPT
+            cfg.system_prompt = prompts.with_commit_history(
+              (auto_short and tiny) and prompts.SHORT_SYSTEM_PROMPT or prompts.DEFAULT_SYSTEM_PROMPT,
+              commits
+            )
 
             if opts.dry_run then
               -- Only compute the prompt text to inspect lengths
@@ -201,6 +217,8 @@ function M.run_live_matrix(diff, opts)
   local provider_list = opts.providers or { "openai", "anthropic", "gemini" }
   local tiny = is_tiny_diff(diff, opts.tiny)
 
+  local commits = get_recent_commits()
+
   local results = {}
   local pending = 0
 
@@ -216,7 +234,10 @@ function M.run_live_matrix(diff, opts)
         local cfg = vim.tbl_deep_extend("force", {}, pcfg)
         cfg.provider = pname
         cfg.model = model
-        cfg.system_prompt = (auto_short and tiny) and prompts.SHORT_SYSTEM_PROMPT or prompts.DEFAULT_SYSTEM_PROMPT
+        cfg.system_prompt = prompts.with_commit_history(
+          (auto_short and tiny) and prompts.SHORT_SYSTEM_PROMPT or prompts.DEFAULT_SYSTEM_PROMPT,
+          commits
+        )
 
         if opts.dry_run then
           local start_ns = uv and uv.hrtime and uv.hrtime() or nil

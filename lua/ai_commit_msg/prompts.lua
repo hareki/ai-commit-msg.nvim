@@ -211,4 +211,27 @@ Examples:
 - refactor(router): inline trivial helper
 ]]
 
+M.COMMIT_HISTORY_SECTION = [[
+
+## Repository commit style reference
+
+The following are recent commit messages from this repository. Use them to learn:
+- Common scopes and module names used in this project
+- Preferred commit type patterns
+- Description style and length preferences
+
+Do NOT copy these messages. Base your output solely on the provided diff.
+Only use these as a style guide for scopes, types, and wording patterns.
+
+Recent commits:
+%s
+]]
+
+function M.with_commit_history(system_prompt, commits)
+  if not commits or commits == "" then
+    return system_prompt
+  end
+  return system_prompt .. string.format(M.COMMIT_HISTORY_SECTION, commits)
+end
+
 return M
