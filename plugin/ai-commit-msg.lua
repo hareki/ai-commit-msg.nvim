@@ -8,8 +8,6 @@ if vim.g.loaded_ai_commit_msg == 1 then
 end
 vim.g.loaded_ai_commit_msg = 1
 
-vim.notify("ai-commit-msg.nvim: Plugin loaded", vim.log.levels.DEBUG)
-
 -- Create user commands
 vim.api.nvim_create_user_command("AiCommitMsg", function()
   require("ai_commit_msg").generate_commit_message(function(success, message)

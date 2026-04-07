@@ -84,13 +84,8 @@ end
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", M.config, opts or {})
 
-  vim.notify("ai-commit-msg.nvim: Setup called", vim.log.levels.DEBUG)
-
   if M.config.enabled then
     require("ai_commit_msg.autocmds").setup(M.config)
-    vim.notify("ai-commit-msg.nvim: Autocmds registered", vim.log.levels.DEBUG)
-  else
-    vim.notify("ai-commit-msg.nvim: Plugin disabled", vim.log.levels.DEBUG)
   end
 end
 

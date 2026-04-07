@@ -18,10 +18,6 @@ local function call_api(config, diff, callback)
 end
 
 function M.generate(config, callback)
-  vim.schedule(function()
-    vim.notify("ai-commit-msg.nvim: Starting generation", vim.log.levels.DEBUG)
-  end)
-
   local spinner_timer
   local notify_record
   local notify_called = false
@@ -128,10 +124,6 @@ function M.generate(config, callback)
       return
     end
 
-    vim.schedule(function()
-      vim.notify("ai-commit-msg.nvim: Calling AI API", vim.log.levels.DEBUG)
-    end)
-
     local start_time = vim.uv.hrtime()
 
     -- Fetch recent commits to enhance the system prompt with project style
@@ -186,10 +178,6 @@ function M.generate(config, callback)
               end
             end
 
-            vim.notify(
-              "ai-commit-msg.nvim: Generated message: " .. result:sub(1, 50) .. "...",
-              vim.log.levels.DEBUG
-            )
             -- Replace spinner notification with success message
             if config.notifications then
               local opts = {

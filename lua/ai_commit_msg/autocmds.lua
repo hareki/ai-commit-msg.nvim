@@ -9,8 +9,6 @@ function M.setup(config)
     group = augroup,
     pattern = "COMMIT_EDITMSG",
     callback = function(arg)
-      vim.notify("ai-commit-msg.nvim: COMMIT_EDITMSG buffer detected", vim.log.levels.DEBUG)
-
       -- Setup keymaps
       if config.keymaps.quit then
         vim.keymap.set("n", config.keymaps.quit, ":w | bd<CR>", {
