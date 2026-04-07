@@ -1,5 +1,5 @@
 if vim.fn.has("nvim-0.7.0") == 0 then
-  vim.api.nvim_err_writeln("ai-commit-msg.nvim requires at least nvim-0.7.0")
+  vim.api.nvim_echo({{"ai-commit-msg.nvim requires at least nvim-0.7.0"}}, true, {err=true})
   return
 end
 
@@ -141,9 +141,9 @@ vim.api.nvim_create_user_command("AiCommitMsgAllModels", function()
       end
 
       vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-      vim.api.nvim_buf_set_option(buf, "bufhidden", "wipe")
-      vim.api.nvim_buf_set_option(buf, "buftype", "nofile")
-      vim.api.nvim_buf_set_option(buf, "filetype", "gitcommit")
+      vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=buf})
+      vim.api.nvim_set_option_value("buftype", "nofile", {buf=buf})
+      vim.api.nvim_set_option_value("filetype", "gitcommit", {buf=buf})
       vim.api.nvim_set_current_buf(buf)
       vim.notify("All-models results buffer opened", vim.log.levels.INFO)
     end)
