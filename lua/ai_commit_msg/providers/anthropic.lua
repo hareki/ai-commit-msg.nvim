@@ -19,10 +19,6 @@ function M.call_api(config, diff, callback)
     prompt = config.prompt .. "\n\n" .. diff
   end
 
-  vim.schedule(function()
-    vim.notify("ai-commit-msg.nvim: Prompt length: " .. #prompt .. " chars", vim.log.levels.DEBUG)
-  end)
-
   local payload_data = {
     model = config.model,
     messages = {
@@ -74,10 +70,6 @@ function M.call_api(config, diff, callback)
       callback(false, "Anthropic API error: " .. (response.error.message or "Unknown error"))
       return
     end
-
-    vim.schedule(function()
-      vim.notify("ai-commit-msg.nvim: Full API response: " .. vim.inspect(response), vim.log.levels.DEBUG)
-    end)
 
     if response.content and response.content[1] and response.content[1].text then
       local commit_msg = response.content[1].text
