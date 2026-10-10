@@ -71,8 +71,17 @@ function M.call_api(config, diff, callback)
       return
     end
 
-    if response.content and response.content[1] and response.content[1].text then
-      local commit_msg = response.content[1].text
+    -- Models with thinking on by default (e.g. claude-haiku-5-5) put `thinking` blocks
+    -- before the answer, so collect text blocks by type rather than reading content[1]
+    local text_parts = {}
+    for _, block in ipairs(response.content or {}) do
+      if block.type == "text" and type(block.text) == "string" then
+        table.insert(text_parts, block.text)
+      end
+    end
+
+    if #text_parts > 0 then
+      local commit_msg = table.concat(text_parts)
       commit_msg = commit_msg:gsub("^```%w*\n", ""):gsub("\n```$", ""):gsub("^`", ""):gsub("`$", "")
       commit_msg = vim.trim(commit_msg)
 
@@ -86,6 +95,9 @@ function M.call_api(config, diff, callback)
       end
 
       callback(true, commit_msg, usage)
+    elseif type(response.stop_reason) == "string" then
+      -- e.g. "max_tokens" when thinking used up the budget, or "refusal"
+      callback(false, "No text in API response (stop_reason: " .. response.stop_reason .. ")")
     else
       callback(false, "Unexpected API response format")
     end
