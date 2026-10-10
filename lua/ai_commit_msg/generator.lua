@@ -75,7 +75,6 @@ function M.generate(config, callback)
 
       vim.schedule(function()
         local error_msg = "Failed to get git diff: " .. (diff_res.stderr or "Unknown error")
-        vim.notify("ai-commit-msg.nvim: " .. error_msg, vim.log.levels.ERROR)
         -- Replace spinner notification with error message
         if config.notifications then
           local opts = {
@@ -86,6 +85,8 @@ function M.generate(config, callback)
             opts.replace = notify_record.id
           end
           vim.notify("❌ " .. error_msg, vim.log.levels.ERROR, opts)
+        else
+          vim.notify("ai-commit-msg.nvim: " .. error_msg, vim.log.levels.ERROR)
         end
         if callback then
           callback(false, error_msg)
@@ -105,7 +106,6 @@ function M.generate(config, callback)
 
       vim.schedule(function()
         local error_msg = "No staged changes to commit"
-        vim.notify("ai-commit-msg.nvim: " .. error_msg, vim.log.levels.WARN)
         -- Replace spinner notification with warning message
         if config.notifications then
           local opts = {
@@ -116,6 +116,8 @@ function M.generate(config, callback)
             opts.replace = notify_record.id
           end
           vim.notify("⚠️  " .. error_msg, vim.log.levels.WARN, opts)
+        else
+          vim.notify("ai-commit-msg.nvim: " .. error_msg, vim.log.levels.WARN)
         end
         if callback then
           callback(false, error_msg)
@@ -147,7 +149,6 @@ function M.generate(config, callback)
 
         vim.schedule(function()
           if not success then
-            vim.notify("ai-commit-msg.nvim: " .. result, vim.log.levels.ERROR)
             -- Replace spinner notification with error message
             if config.notifications then
               local opts = {
@@ -158,6 +159,8 @@ function M.generate(config, callback)
                 opts.replace = notify_record.id
               end
               vim.notify("❌ " .. result, vim.log.levels.ERROR, opts)
+            else
+              vim.notify("ai-commit-msg.nvim: " .. result, vim.log.levels.ERROR)
             end
             if callback then
               callback(false, result)
